@@ -109,7 +109,7 @@
                     </select>
                 </div>
                 <div><label>Strategy Name</label>
-                    <select id="strategyName" onchange="loadStrategyDetails(this.value)">
+                    <select id="strategyName">
                         <option value="">Select or Create New</option>
                         <option value="new">+ Create New Strategy</option>
                     </select>
@@ -133,11 +133,11 @@
                 <div style="grid-column: 1 / -1;"><label>Notes</label><textarea id="notes"></textarea></div>
                 <div style="grid-column: 1 / -1;"><label>Upload Screenshot</label><input type="file" id="screenshot" accept="image/*"></div>
             </div>
-            <button id="actionBtn" class="btn-primary" onclick="handleAction()">Add Trade</button>
+            <button id="actionBtn" class="btn-primary">Add Trade</button>
             <div class="btn-group">
-                <button onclick="exportData()" class="btn-success">Export Journal</button>
-                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()">
-                <button onclick="document.getElementById('importFile').click()" class="btn-accent">Import Journal</button>
+                <button class="btn-success" id="exportBtn">Export Journal</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;">
+                <button class="btn-accent" id="importBtn">Import Journal</button>
             </div>
         </div>
 
@@ -150,37 +150,45 @@
                     <h3>📁 Google Drive</h3>
                     <p>Sync to your Google Drive account</p>
                     <div id="googleDriveContent">
-                        <button class="btn-info" style="width: 100%;" onclick="showGoogleSetup()">Setup Google Drive</button>
+                        <button class="btn-info" style="width: 100%;" id="googleSetupBtn">Setup Google Drive</button>
                     </div>
                 </div>
                 <div class="cloud-option" id="dropboxOption">
                     <h3>📦 Dropbox</h3>
                     <p>Sync to your Dropbox account</p>
                     <div id="dropboxContent">
-                        <button class="btn-info" style="width: 100%;" onclick="showDropboxSetup()">Setup Dropbox</button>
+                        <button class="btn-info" style="width: 100%;" id="dropboxSetupBtn">Setup Dropbox</button>
                     </div>
                 </div>
                 <div class="cloud-option" id="oneDriveOption">
                     <h3>☁️ OneDrive</h3>
                     <p>Sync to your OneDrive account</p>
                     <div id="oneDriveContent">
-                        <button class="btn-info" style="width: 100%;" onclick="showOneDriveSetup()">Setup OneDrive</button>
+                        <button class="btn-info" style="width: 100%;" id="oneDriveSetupBtn">Setup OneDrive</button>
                     </div>
                 </div>
             </div>
             
             <div id="syncStatus"></div>
             <div class="btn-group" style="margin-top: 16px;">
-                <button onclick="manualBackup()" class="btn-primary" style="width: auto;">💾 Create Backup Now</button>
-                <button onclick="toggleAutoSync()" class="btn-accent" style="width: auto;" id="autoSyncBtn">🔄 Enable Auto-Sync</button>
+                <button class="btn-primary" style="width: auto;" id="manualBackupBtn">💾 Create Backup Now</button>
+                <button class="btn-accent" style="width: auto;" id="autoSyncBtn">🔄 Enable Auto-Sync</button>
             </div>
         </div>
 
         <div class="card">
             <h2>Account Management</h2>
             <div class="form-grid">
-                <div><label>Starting Capital</label><input type="number" id="startingCapitalInput" step="any"><button onclick="saveStartingCapital()" class="btn-primary" style="margin-top:10px;width:100%;">Save Starting Capital</button></div>
-                <div><label>Record Withdrawal</label><input type="number" id="withdrawalAmount" step="any"><button onclick="recordWithdrawal()" class="btn-warning" style="margin-top:10px;width:100%;">Record Withdrawal</button></div>
+                <div>
+                    <label>Starting Capital</label>
+                    <input type="number" id="startingCapitalInput" step="any">
+                    <button class="btn-primary" style="margin-top:10px;width:100%;" id="saveCapitalBtn">Save Starting Capital</button>
+                </div>
+                <div>
+                    <label>Record Withdrawal</label>
+                    <input type="number" id="withdrawalAmount" step="any">
+                    <button class="btn-warning" style="margin-top:10px;width:100%;" id="withdrawalBtn">Record Withdrawal</button>
+                </div>
             </div>
         </div>
 
@@ -214,7 +222,7 @@
 
         <div class="card">
             <h2>Trade Log</h2>
-            <select id="tradeSelect" class="trade-select" onchange="showTradeDetails(this.value)"><option value="">Select a trade to view details</option></select>
+            <select id="tradeSelect" class="trade-select"><option value="">Select a trade to view details</option></select>
             <div id="tradeDetails"><p style="text-align: center; color: #64748b;">Select a trade from the dropdown to view details</p></div>
         </div>
     </div>
@@ -222,7 +230,7 @@
     <!-- Setup Modals -->
     <div id="googleModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('googleModal')">&times;</span>
+            <span class="close" id="closeGoogleModal">&times;</span>
             <h2>📁 Google Drive Setup</h2>
             <ol>
                 <li>Go to <code>https://console.cloud.google.com/</code></li>
@@ -234,13 +242,13 @@
                 <li>Copy your <strong>Client ID</strong></li>
             </ol>
             <input type="text" id="googleClientIdInput" placeholder="Paste your Google Client ID here" style="width: 100%; margin: 16px 0;">
-            <button onclick="connectGoogleDrive()" class="btn-primary">Connect Google Drive</button>
+            <button class="btn-primary" id="connectGoogleBtn">Connect Google Drive</button>
         </div>
     </div>
 
     <div id="dropboxModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('dropboxModal')">&times;</span>
+            <span class="close" id="closeDropboxModal">&times;</span>
             <h2>📦 Dropbox Setup</h2>
             <ol>
                 <li>Go to <code>https://www.dropbox.com/developers/apps</code></li>
@@ -251,13 +259,13 @@
                 <li>Copy your <strong>App key</strong></li>
             </ol>
             <input type="text" id="dropboxClientIdInput" placeholder="Paste your Dropbox App Key here" style="width: 100%; margin: 16px 0;">
-            <button onclick="connectDropbox()" class="btn-primary">Connect Dropbox</button>
+            <button class="btn-primary" id="connectDropboxBtn">Connect Dropbox</button>
         </div>
     </div>
 
     <div id="oneDriveModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal('oneDriveModal')">&times;</span>
+            <span class="close" id="closeOneDriveModal">&times;</span>
             <h2>☁️ OneDrive Setup</h2>
             <ol>
                 <li>Go to <code>https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps</code></li>
@@ -267,22 +275,36 @@
                 <li>Copy <strong>Application (client) ID</strong></li>
             </ol>
             <input type="text" id="oneDriveClientIdInput" placeholder="Paste your Application ID here" style="width: 100%; margin: 16px 0;">
-            <button onclick="connectOneDrive()" class="btn-primary">Connect OneDrive</button>
+            <button class="btn-primary" id="connectOneDriveBtn">Connect OneDrive</button>
         </div>
     </div>
 
     <script>
         // Global variables
-        let trades = JSON.parse(localStorage.getItem('trades')) || [];
-        let strategies = JSON.parse(localStorage.getItem('strategies')) || {};
-        let startingCapital = parseFloat(localStorage.getItem('startingCapital')) || 0;
-        let withdrawals = parseFloat(localStorage.getItem('withdrawals')) || 0;
+        let trades = [];
+        let strategies = {};
+        let startingCapital = 0;
+        let withdrawals = 0;
         let equityChart = null;
         let editingIndex = null;
-        let cloudProvider = localStorage.getItem('cloudProvider') || null;
-        let autoSyncEnabled = localStorage.getItem('autoSyncEnabled') === 'true';
+        let cloudProvider = null;
+        let autoSyncEnabled = false;
 
         const pointValues = {"EURUSD": 10, "GBPUSD": 10, "USDJPY": 10, "XAUUSD": 1, "NAS100": 1, "BTCUSD": 1};
+
+        // Load data from localStorage
+        function loadData() {
+            try {
+                trades = JSON.parse(localStorage.getItem('trades')) || [];
+                strategies = JSON.parse(localStorage.getItem('strategies')) || {};
+                startingCapital = parseFloat(localStorage.getItem('startingCapital')) || 0;
+                withdrawals = parseFloat(localStorage.getItem('withdrawals')) || 0;
+                cloudProvider = localStorage.getItem('cloudProvider') || null;
+                autoSyncEnabled = localStorage.getItem('autoSyncEnabled') === 'true';
+            } catch (e) {
+                console.error('Error loading data:', e);
+            }
+        }
 
         function getPointValue(pair) {
             return pointValues[pair] || 1;
@@ -380,6 +402,505 @@
 
             const strategyInfo = strategies[strategyName] ? JSON.parse(JSON.stringify(strategies[strategyName])) : {};
 
+            let screenshotURL = trades[index].screenshotURL || '';
+
+            if (screenshotFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    screenshotURL = e.target.result;
+                    saveUpdatedTrade(screenshotURL);
+                };
+                reader.readAsDataURL(screenshotFile);
+            } else {
+                saveUpdatedTrade(screenshotURL);
+            }
+
+            function saveUpdatedTrade(url) {
+                trades[index] = {
+                    tradeDate,
+                    pair,
+                    strategyName,
+                    strategyInfo,
+                    lotSize,
+                    entry,
+                    stop,
+                    tp,
+                    outcome,
+                    notes,
+                    rr,
+                    profit,
+                    swap,
+                    screenshotURL: url
+                };
+                localStorage.setItem('trades', JSON.stringify(trades));
+                resetForm();
+                updateAll();
+                if (autoSyncEnabled) performAutoSync();
+                alert("Trade updated successfully!");
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('tradeDate').value = '';
+            document.getElementById('pair').value = '';
+            document.getElementById('strategyName').value = '';
+            loadStrategyDetails('');
+            document.getElementById('lotSize').value = '1';
+            document.getElementById('entry').value = '';
+            document.getElementById('stop').value = '';
+            document.getElementById('tp').value = '';
+            document.getElementById('outcome').value = 'win';
+            document.getElementById('notes').value = '';
+            document.getElementById('swap').value = '0';
+            document.getElementById('screenshot').value = '';
+            document.getElementById('actionBtn').textContent = 'Add Trade';
+            editingIndex = null;
+        }
+
+        function editTrade(index) {
+            const trade = trades[index];
+            document.getElementById('tradeDate').value = trade.tradeDate;
+            document.getElementById('pair').value = trade.pair;
+            document.getElementById('strategyName').value = trade.strategyName;
+            loadStrategyDetails(trade.strategyName);
+
+            if (trade.strategyInfo) {
+                document.getElementById('bias').value = trade.strategyInfo.bias || '';
+                document.getElementById('confluence').value = trade.strategyInfo.confluence || '';
+                document.getElementById('model').value = trade.strategyInfo.model || '';
+                document.getElementById('entryCriteria').value = trade.strategyInfo.entryCriteria || '';
+                document.getElementById('timeFrame').value = trade.strategyInfo.timeFrame || '';
+                document.getElementById('session').value = trade.strategyInfo.session || '';
+            }
+
+            document.getElementById('lotSize').value = trade.lotSize;
+            document.getElementById('entry').value = trade.entry;
+            document.getElementById('stop').value = trade.stop;
+            document.getElementById('tp').value = trade.tp;
+            document.getElementById('outcome').value = trade.outcome;
+            document.getElementById('notes').value = trade.notes || '';
+            document.getElementById('swap').value = trade.swap || 0;
+            editingIndex = index;
+            document.getElementById('actionBtn').textContent = 'Update Trade';
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function deleteTrade(index) {
+            if (confirm("Are you sure you want to delete this trade?")) {
+                trades.splice(index, 1);
+                localStorage.setItem('trades', JSON.stringify(trades));
+                document.getElementById('tradeSelect').value = '';
+                document.getElementById('tradeDetails').innerHTML = '<p style="text-align: center; color: #64748b;">Select a trade from the dropdown to view details</p>';
+                updateAll();
+                if (autoSyncEnabled) performAutoSync();
+                alert("Trade deleted.");
+            }
+        }
+
+        function updateTradeSelect() {
+            const select = document.getElementById('tradeSelect');
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">Select a trade to view details</option>';
+            trades.forEach((trade, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `Trade ${index + 1} - ${trade.tradeDate} - ${trade.pair} - ${trade.strategyName}`;
+                select.appendChild(option);
+            });
+
+            if (currentValue && parseInt(currentValue) < trades.length) {
+                select.value = currentValue;
+            }
+        }
+
+        function showTradeDetails(value) {
+            const details = document.getElementById('tradeDetails');
+
+            if (!value) {
+                details.innerHTML = '<p style="text-align: center; color: #64748b;">Select a trade from the dropdown to view details</p>';
+                return;
+            }
+
+            const index = parseInt(value, 10);
+            if (isNaN(index) || index < 0 || index >= trades.length) {
+                details.innerHTML = '<p style="color: red;">Invalid trade selected.</p>';
+                return;
+            }
+
+            const trade = trades[index];
+            const strat = trade.strategyInfo || {};
+
+            let html = `<strong style="font-size: 1.2rem;">Trade ${index + 1}</strong> (${trade.tradeDate}) — <strong style="font-size: 1.2rem;">${trade.pair}</strong><br><br>
+                <strong>Strategy:</strong> ${trade.strategyName}<br>
+                Bias: ${strat.bias || 'N/A'} | Session: ${strat.session || 'N/A'} | Time Frame: ${strat.timeFrame || 'N/A'}<br><br>
+                <strong>Confluence:</strong> ${strat.confluence || 'N/A'}<br>
+                <strong>Model:</strong> ${strat.model || 'N/A'}<br>
+                <strong>Entry Criteria:</strong> ${strat.entryCriteria || 'N/A'}<br><br>
+                <strong>Trade Details:</strong><br>
+                Lot Size: ${trade.lotSize} | Entry: ${trade.entry} | SL: ${trade.stop} | TP: ${trade.tp}<br>
+                Outcome: <strong style="color: ${trade.outcome === 'win' ? '#10b981' : trade.outcome === 'loss' ? '#ef4444' : '#f59e0b'};">${trade.outcome.toUpperCase()}</strong> | RR: 1:${trade.rr} | P/L: ${trade.profit.toFixed(2)} | Swap: ${trade.swap.toFixed(2)}<br><br>
+                <em>Notes:</em> ${trade.notes || 'None'}<br><br>
+                <button class="btn-danger" onclick="deleteTrade(${index})">Delete Trade</button>
+                <button class="btn-warning" onclick="editTrade(${index})">Edit Trade</button>`;
+
+            if (trade.screenshotURL && trade.screenshotURL.trim() !== '') {
+                html += `<br><br><strong>Trade Screenshot:</strong><br><img src="${trade.screenshotURL}" alt="Trade screenshot" onerror="this.style.display='none';">`;
+            }
+
+            details.innerHTML = html;
+        }
+
+        function updateStats() {
+            const total = trades.length;
+            let wins = 0, totalRR = 0, totalPnL = 0;
+            trades.forEach(t => {
+                if (t.outcome === 'win') wins++;
+                totalRR += parseFloat(t.rr);
+                totalPnL += t.profit;
+            });
+            const winRate = total > 0 ? ((wins / total) * 100).toFixed(2) : 0;
+            const avgRR = total > 0 ? (totalRR / total).toFixed(2) : 0.00;
+            const currentEquity = startingCapital + totalPnL - withdrawals;
+            document.getElementById('totalTrades').textContent = total;
+            document.getElementById('winRate').textContent = winRate + '%';
+            document.getElementById('avgRR').textContent = avgRR;
+            document.getElementById('totalProfit').textContent = totalPnL.toFixed(2);
+            document.getElementById('currentEquity').textContent = currentEquity.toFixed(2);
+            document.getElementById('totalWithdrawals').textContent = withdrawals.toFixed(2);
+        }
+
+        function updateStrategyPerformance() {
+            const tbody = document.getElementById('strategyTable').querySelector('tbody');
+            tbody.innerHTML = '';
+            const stratPerf = {};
+            trades.forEach(t => {
+                if (!stratPerf[t.strategyName]) {
+                    stratPerf[t.strategyName] = {trades: 0, wins: 0, totalRR: 0, totalProfit: 0};
+                }
+                stratPerf[t.strategyName].trades++;
+                if (t.outcome === 'win') stratPerf[t.strategyName].wins++;
+                stratPerf[t.strategyName].totalRR += parseFloat(t.rr);
+                stratPerf[t.strategyName].totalProfit += t.profit;
+            });
+            Object.keys(stratPerf).sort().forEach(name => {
+                const s = stratPerf[name];
+                const winRate = s.trades > 0 ? ((s.wins / s.trades) * 100).toFixed(2) : 0;
+                const avgRR = s.trades > 0 ? (s.totalRR / s.trades).toFixed(2) : 0.00;
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = name;
+                row.insertCell(1).textContent = s.trades;
+                row.insertCell(2).textContent = winRate + '%';
+                row.insertCell(3).textContent = avgRR;
+                row.insertCell(4).textContent = s.totalProfit.toFixed(2);
+            });
+        }
+
+        function updateSessionPerformance() {
+            const tbody = document.getElementById('sessionTable').querySelector('tbody');
+            tbody.innerHTML = '';
+            const sessPerf = {};
+            trades.forEach(t => {
+                const sess = t.strategyInfo?.session || 'Unknown';
+                if (!sessPerf[sess]) {
+                    sessPerf[sess] = {trades: 0, wins: 0, totalRR: 0, totalProfit: 0};
+                }
+                sessPerf[sess].trades++;
+                if (t.outcome === 'win') sessPerf[sess].wins++;
+                sessPerf[sess].totalRR += parseFloat(t.rr);
+                sessPerf[sess].totalProfit += t.profit;
+            });
+            Object.keys(sessPerf).sort().forEach(name => {
+                const s = sessPerf[name];
+                const winRate = s.trades > 0 ? ((s.wins / s.trades) * 100).toFixed(2) : 0;
+                const avgRR = s.trades > 0 ? (s.totalRR / s.trades).toFixed(2) : 0.00;
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = name;
+                row.insertCell(1).textContent = s.trades;
+                row.insertCell(2).textContent = winRate + '%';
+                row.insertCell(3).textContent = avgRR;
+                row.insertCell(4).textContent = s.totalProfit.toFixed(2);
+            });
+        }
+
+        function updateEquityCurve() {
+            const ctx = document.getElementById('equityChart').getContext('2d');
+            const labels = [];
+            const data = [];
+            let equity = startingCapital;
+            labels.push('Start');
+            data.push(equity);
+            trades.forEach((t, i) => {
+                equity += t.profit;
+                labels.push(`Trade ${i + 1}`);
+                data.push(equity);
+            });
+            if (equityChart) {
+                equityChart.destroy();
+            }
+            equityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Equity',
+                        data: data,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateAll() {
+            updateStats();
+            updateStrategyPerformance();
+            updateSessionPerformance();
+            updateEquityCurve();
+            updateTradeSelect();
+        }
+
+        function saveStartingCapital() {
+            const val = parseFloat(document.getElementById('startingCapitalInput').value);
+            if (isNaN(val) || val < 0) {
+                alert('Please enter a valid starting capital.');
+                return;
+            }
+            startingCapital = val;
+            localStorage.setItem('startingCapital', startingCapital);
+            document.getElementById('startingCapitalDisplay').textContent = startingCapital.toFixed(2);
+            updateStats();
+            updateEquityCurve();
+            alert('Starting capital saved!');
+        }
+
+        function recordWithdrawal() {
+            const val = parseFloat(document.getElementById('withdrawalAmount').value);
+            if (isNaN(val) || val <= 0) {
+                alert('Please enter a valid withdrawal amount.');
+                return;
+            }
+            withdrawals += val;
+            localStorage.setItem('withdrawals', withdrawals);
+            document.getElementById('withdrawalAmount').value = '';
+            updateStats();
+            alert('Withdrawal recorded!');
+        }
+
+        function exportData() {
+            const data = {trades, strategies, startingCapital, withdrawals};
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'trading_journal_' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            const file = document.getElementById('importFile').files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.trades) trades = data.trades;
+                    if (data.strategies) strategies = data.strategies;
+                    if (data.startingCapital !== undefined) startingCapital = data.startingCapital;
+                    if (data.withdrawals !== undefined) withdrawals = data.withdrawals;
+                    localStorage.setItem('trades', JSON.stringify(trades));
+                    localStorage.setItem('strategies', JSON.stringify(strategies));
+                    localStorage.setItem('startingCapital', startingCapital);
+                    localStorage.setItem('withdrawals', withdrawals);
+                    document.getElementById('startingCapitalInput').value = startingCapital;
+                    document.getElementById('startingCapitalDisplay').textContent = startingCapital.toFixed(2);
+                    loadStrategyDropdown();
+                    updateAll();
+                    alert('Journal imported successfully!');
+                } catch (err) {
+                    alert('Error importing file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function performAutoSync() {
+            if (!cloudProvider) return;
+            showSyncStatus('Auto-sync simulated (connect OAuth for real sync)', 'info');
+        }
+
+        function showSyncStatus(message, type) {
+            const statusDiv = document.getElementById('syncStatus');
+            statusDiv.innerHTML = `<div class="sync-status sync-${type}">${message}</div>`;
+        }
+
+        function manualBackup() {
+            if (!cloudProvider) {
+                alert('Please connect to a cloud storage provider first, or use the Export button to download locally.');
+                return;
+            }
+            showSyncStatus('Manual backup simulated', 'info');
+            exportData();
+        }
+
+        function toggleAutoSync() {
+            if (!cloudProvider) {
+                alert('Please connect to a cloud storage provider first!');
+                return;
+            }
+            autoSyncEnabled = !autoSyncEnabled;
+            localStorage.setItem('autoSyncEnabled', autoSyncEnabled);
+            const btn = document.getElementById('autoSyncBtn');
+            if (autoSyncEnabled) {
+                btn.textContent = '✅ Auto-Sync Enabled';
+                btn.style.background = '#10b981';
+                showSyncStatus('Auto-sync enabled!', 'success');
+            } else {
+                btn.textContent = '🔄 Enable Auto-Sync';
+                btn.style.background = '#a78bfa';
+                showSyncStatus('Auto-sync disabled.', 'info');
+            }
+        }
+
+        // Event Listeners - ALL BUTTONS NOW WORK
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            document.getElementById('startingCapitalInput').value = startingCapital;
+            document.getElementById('startingCapitalDisplay').textContent = startingCapital.toFixed(2);
+            document.getElementById('currentUrl').textContent = window.location.href;
+            loadStrategyDropdown();
+            updateAll();
+
+            // Add Trade Button
+            document.getElementById('actionBtn').addEventListener('click', handleAction);
+
+            // Strategy Dropdown
+            document.getElementById('strategyName').addEventListener('change', function() {
+                loadStrategyDetails(this.value);
+            });
+
+            // Trade Select Dropdown
+            document.getElementById('tradeSelect').addEventListener('change', function() {
+                showTradeDetails(this.value);
+            });
+
+            // Save Starting Capital Button
+            document.getElementById('saveCapitalBtn').addEventListener('click', saveStartingCapital);
+
+            // Record Withdrawal Button
+            document.getElementById('withdrawalBtn').addEventListener('click', recordWithdrawal);
+
+            // Export Button
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+
+            // Import Button
+            document.getElementById('importBtn').addEventListener('click', function() {
+                document.getElementById('importFile').click();
+            });
+
+            document.getElementById('importFile').addEventListener('change', importData);
+
+            // Cloud Setup Buttons
+            document.getElementById('googleSetupBtn').addEventListener('click', function() {
+                document.getElementById('googleRedirectUri').textContent = window.location.href;
+                document.getElementById('googleModal').style.display = 'block';
+            });
+
+            document.getElementById('dropboxSetupBtn').addEventListener('click', function() {
+                document.getElementById('dropboxRedirectUri').textContent = window.location.href;
+                document.getElementById('dropboxModal').style.display = 'block';
+            });
+
+            document.getElementById('oneDriveSetupBtn').addEventListener('click', function() {
+                document.getElementById('oneDriveRedirectUri').textContent = window.location.href;
+                document.getElementById('oneDriveModal').style.display = 'block';
+            });
+
+            // Close Modals
+            document.getElementById('closeGoogleModal').addEventListener('click', function() {
+                document.getElementById('googleModal').style.display = 'none';
+            });
+
+            document.getElementById('closeDropboxModal').addEventListener('click', function() {
+                document.getElementById('dropboxModal').style.display = 'none';
+            });
+
+            document.getElementById('closeOneDriveModal').addEventListener('click', function() {
+                document.getElementById('oneDriveModal').style.display = 'none';
+            });
+
+            // Connect Buttons (Simplified - shows simulation)
+            document.getElementById('connectGoogleBtn').addEventListener('click', function() {
+                const clientId = document.getElementById('googleClientIdInput').value.trim();
+                if (!clientId) {
+                    alert('Please enter your Google Client ID');
+                    return;
+                }
+                cloudProvider = 'googledrive';
+                localStorage.setItem('cloudProvider', cloudProvider);
+                document.getElementById('googleModal').style.display = 'none';
+                showSyncStatus('Google Drive connected (OAuth implementation requires deployment)', 'success');
+            });
+
+            document.getElementById('connectDropboxBtn').addEventListener('click', function() {
+                const clientId = document.getElementById('dropboxClientIdInput').value.trim();
+                if (!clientId) {
+                    alert('Please enter your Dropbox App Key');
+                    return;
+                }
+                cloudProvider = 'dropbox';
+                localStorage.setItem('cloudProvider', cloudProvider);
+                document.getElementById('dropboxModal').style.display = 'none';
+                showSyncStatus('Dropbox connected (OAuth implementation requires deployment)', 'success');
+            });
+
+            document.getElementById('connectOneDriveBtn').addEventListener('click', function() {
+                const clientId = document.getElementById('oneDriveClientIdInput').value.trim();
+                if (!clientId) {
+                    alert('Please enter your Application ID');
+                    return;
+                }
+                cloudProvider = 'onedrive';
+                localStorage.setItem('cloudProvider', cloudProvider);
+                document.getElementById('oneDriveModal').style.display = 'none';
+                showSyncStatus('OneDrive connected (OAuth implementation requires deployment)', 'success');
+            });
+
+            // Manual Backup Button
+            document.getElementById('manualBackupBtn').addEventListener('click', manualBackup);
+
+            // Auto-Sync Toggle Button
+            document.getElementById('autoSyncBtn').addEventListener('click', toggleAutoSync);
+
+            // Close modal when clicking outside
+            window.onclick = function(event) {
+                if (event.target.className === 'modal') {
+                    event.target.style.display = 'none';
+                }
+            };
+        });
+    </script>
+</body>
+</html> pointValue;
+            profit += swap;
+
+            const strategyInfo = strategies[strategyName] ? JSON.parse(JSON.stringify(strategies[strategyName])) : {};
+
             if (screenshotFile) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -463,7 +984,4 @@
             const pointValue = getPointValue(pair);
             let profit = 0;
             if (outcome === 'win') profit = rewardPoints * lotSize * pointValue;
-            if (outcome === 'loss') profit = -riskPoints * lotSize * pointValue;
-            profit += swap;
-
-            const strategyInfo = strategies[strategyName] ? JSON.parse(JSON.stringify(strategies[strategyName])) : {};
+            if (outcome === 'loss') profit = -riskPoints * lotSize *
