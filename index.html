@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Trading Journal</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #a78bfa;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+        }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%); color: var(--text); margin: 0; padding: 20px; min-height: 100vh; }
+        .journal { max-width: 1100px; margin: 0 auto; }
+        h1 { text-align: center; color: var(--primary); font-size: 2.5rem; margin-bottom: 2rem; font-weight: 700; }
+        .card { background: var(--card); border-radius: 16px; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.1); padding: 24px; margin-bottom: 24px; border: 1px solid var(--border); }
+        .card h2 { color: var(--primary); margin-top: 0; margin-bottom: 20px; font-size: 1.5rem; border-bottom: 2px solid var(--accent); padding-bottom: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; }
+        input, select, textarea { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 1rem; background: #f8fafc; box-sizing: border-box; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        textarea { height: 100px; resize: vertical; }
+        button { padding: 12px 24px; border: none; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-accent { background: var(--accent); color: white; }
+        .btn-accent:hover { background: #8b5cf6; }
+        .btn-danger { background: var(--danger); color: white; margin-right: 10px; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-warning:hover { background: #d97706; }
+        .btn-info { background: var(--info); color: white; }
+        .btn-info:hover { background: #2563eb; }
+        .btn-group { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .stat-item { background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; padding: 16px; border-radius: 12px; text-align: center; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; }
+        .stat-label { font-size: 0.9rem; opacity: 0.9; }
+        .trade-select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; box-sizing: border-box; }
+        #tradeDetails { min-height: 100px; padding: 20px; background: #f9f9f9; border-radius: 12px; line-height: 1.8; }
+        #tradeDetails img { max-width: 100%; height: auto; margin-top: 16px; border-radius: 12px; border: 2px solid var(--border); display: block; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: var(--primary); color: white; font-weight: 600; }
+        tr:hover { background: #f8fafc; }
+        .sync-status { padding: 12px 20px; border-radius: 8px; font-size: 0.95rem; margin-top: 16px; display: inline-block; }
+        .sync-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+        .sync-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .sync-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        .cloud-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 16px; }
+        .cloud-option { padding: 20px; border: 2px solid var(--border); border-radius: 12px; text-align: center; cursor: pointer; transition: all 0.3s; background: white; }
+        .cloud-option:hover { border-color: var(--primary); background: #f8fafc; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15); }
+        .cloud-option.connected { border-color: var(--success); background: #f0fdf4; }
+        .cloud-option h3 { margin: 0 0 8px 0; font-size: 1.3rem; }
+        .cloud-option p { margin: 0 0 12px 0; color: var(--text-light); font-size: 0.9rem; }
+        .setup-instructions { background: #fff7ed; border: 2px solid #fb923c; border-radius: 12px; padding: 20px; margin-top: 20px; }
+        .setup-instructions h3 { margin-top: 0; color: #ea580c; }
+        .setup-instructions ol { line-height: 1.8; }
+        .setup-instructions code { background: #fef3c7; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        .disconnect-btn { background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; margin-top: 12px; font-size: 0.9rem; }
+        .disconnect-btn:hover { background: #dc2626; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: white; margin: 5% auto; padding: 30px; border-radius: 16px; width: 90%; max-width: 600px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .modal-content h2 { margin-top: 0; color: var(--primary); }
+        .modal-content ol { line-height: 2; }
+        .modal-content code { background: #f0f4ff; padding: 4px 8px; border-radius: 4px; color: var(--primary); font-size: 0.95rem; }
+        .close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #000; }
+    </style>
+</head>
+<body>
+    <div class="journal">
+        <h1>📊 Professional Trading Journal</h1>
+
+        <div class="card" id="setupCard" style="display: none;">
+            <h2>⚙️ GitHub Pages Setup</h2>
+            <div class="setup-instructions">
+                <h3>🎉 Your journal is ready!</h3>
+                <p><strong>Current URL:</strong> <code id="currentUrl"></code></p>
+                <p style="margin-top: 16px;">To enable cloud backup, you'll need to set up OAuth credentials. This is optional - your journal works perfectly without it!</p>
+                <button onclick="document.getElementById('setupCard').style.display='none'" class="btn-accent" style="width: auto; margin-top: 12px;">Got it!</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Add / Edit Trade</h2>
+            <div class="form-grid">
+                <div><label>Trade Date</label><input type="date" id="tradeDate"></div>
+                <div><label>Pair / Symbol</label>
+                    <select id="pair">
+                        <option value="">Select Pair/Symbol</option>
+                        <option value="EURUSD">EURUSD (Forex)</option>
+                        <option value="GBPUSD">GBPUSD (Forex)</option>
+                        <option value="USDJPY">USDJPY (Forex)</option>
+                        <option value="XAUUSD">XAUUSD (Gold)</option>
+                        <option value="NAS100">NAS100 (CFD Nasdaq)</option>
+                        <option value="BTCUSD">BTCUSD (Crypto)</option>
+                    </select>
+                </div>
+                <div><label>Strategy Name</label>
+                    <select id="strategyName" onchange="loadStrategyDetails(this.value)">
+                        <option value="">Select or Create New</option>
+                        <option value="new">+ Create New Strategy</option>
+                    </select>
+                </div>
+                <div id="strategyFields" style="display: none; grid-column: 1 / -1;">
+                    <div class="form-grid">
+                        <div><label>Bias</label><select id="bias"><option value="">Select Bias</option><option value="Bullish">Bullish</option><option value="Bearish">Bearish</option><option value="Range">Range</option></select></div>
+                        <div><label>Time Frame</label><select id="timeFrame"><option value="">Select Time Frame</option><option value="1m">1 Minute</option><option value="15m">15 Minute</option><option value="1h">1 Hour</option><option value="4h">4 Hour</option><option value="Daily">Daily</option></select></div>
+                        <div><label>Session</label><select id="session"><option value="">Select Session</option><option value="Asian">Asian</option><option value="London">London</option><option value="New York">New York</option></select></div>
+                        <div style="grid-column: 1 / -1;"><label>Confluence Factors</label><textarea id="confluence"></textarea></div>
+                        <div style="grid-column: 1 / -1;"><label>Model / Setup</label><textarea id="model"></textarea></div>
+                        <div style="grid-column: 1 / -1;"><label>Entry Criteria</label><textarea id="entryCriteria"></textarea></div>
+                    </div>
+                </div>
+                <div><label>Lot Size</label><input type="number" id="lotSize" step="any" value="1"></div>
+                <div><label>Entry Price</label><input type="number" id="entry" step="any"></div>
+                <div><label>Stop Loss</label><input type="number" id="stop" step="any"></div>
+                <div><label>Take Profit</label><input type="number" id="tp" step="any"></div>
+                <div><label>Outcome</label><select id="outcome"><option value="win">Win</option><option value="loss">Loss</option><option value="breakeven">Breakeven</option></select></div>
+                <div style="grid-column: 1 / -1;"><label>Swap (Positive or Negative)</label><input type="number" id="swap" step="any" value="0"></div>
+                <div style="grid-column: 1 / -1;"><label>Notes</label><textarea id="notes"></textarea></div>
+                <div style="grid-column: 1 / -1;"><label>Upload Screenshot</label><input type="file" id="screenshot" accept="image/*"></div>
+            </div>
+            <button id="actionBtn" class="btn-primary" onclick="handleAction()">Add Trade</button>
+            <div class="btn-group">
+                <button onclick="exportData()" class="btn-success">Export Journal</button>
+                <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData()">
+                <button onclick="document.getElementById('importFile').click()" class="btn-accent">Import Journal</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>☁️ Cloud Backup & Sync</h2>
+            <p style="color: var(--text-light); margin-bottom: 16px;">Automatically backup your trading journal to cloud storage (requires OAuth setup)</p>
+            
+            <div class="cloud-section">
+                <div class="cloud-option" id="googleDriveOption">
+                    <h3>📁 Google Drive</h3>
+                    <p>Sync to your Google Drive account</p>
+                    <div id="googleDriveContent">
+                        <button class="btn-info" style="width: 100%;" onclick="showGoogleSetup()">Setup Google Drive</button>
+                    </div>
+                </div>
+                <div class="cloud-option" id="dropboxOption">
+                    <h3>📦 Dropbox</h3>
+                    <p>Sync to your Dropbox account</p>
+                    <div id="dropboxContent">
+                        <button class="btn-info" style="width: 100%;" onclick="showDropboxSetup()">Setup Dropbox</button>
+                    </div>
+                </div>
+                <div class="cloud-option" id="oneDriveOption">
+                    <h3>☁️ OneDrive</h3>
+                    <p>Sync to your OneDrive account</p>
+                    <div id="oneDriveContent">
+                        <button class="btn-info" style="width: 100%;" onclick="showOneDriveSetup()">Setup OneDrive</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="syncStatus"></div>
+            <div class="btn-group" style="margin-top: 16px;">
+                <button onclick="manualBackup()" class="btn-primary" style="width: auto;">💾 Create Backup Now</button>
+                <button onclick="toggleAutoSync()" class="btn-accent" style="width: auto;" id="autoSyncBtn">🔄 Enable Auto-Sync</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Account Management</h2>
+            <div class="form-grid">
+                <div><label>Starting Capital</label><input type="number" id="startingCapitalInput" step="any"><button onclick="saveStartingCapital()" class="btn-primary" style="margin-top:10px;width:100%;">Save Starting Capital</button></div>
+                <div><label>Record Withdrawal</label><input type="number" id="withdrawalAmount" step="any"><button onclick="recordWithdrawal()" class="btn-warning" style="margin-top:10px;width:100%;">Record Withdrawal</button></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Overall Performance</h2>
+            <div class="stats-grid">
+                <div class="stat-item"><div class="stat-value" id="startingCapitalDisplay">0.00</div><div class="stat-label">Starting Capital</div></div>
+                <div class="stat-item"><div class="stat-value" id="currentEquity">0.00</div><div class="stat-label">Current Equity</div></div>
+                <div class="stat-item"><div class="stat-value" id="totalWithdrawals">0.00</div><div class="stat-label">Total Withdrawals</div></div>
+                <div class="stat-item"><div class="stat-value" id="totalTrades">0</div><div class="stat-label">Total Trades</div></div>
+                <div class="stat-item"><div class="stat-value" id="winRate">0%</div><div class="stat-label">Win Rate</div></div>
+                <div class="stat-item"><div class="stat-value" id="avgRR">0.00</div><div class="stat-label">Average RR</div></div>
+                <div class="stat-item"><div class="stat-value" id="totalProfit">0.00</div><div class="stat-label">Total Profit</div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Performance by Strategy</h2>
+            <table id="strategyTable"><thead><tr><th>Strategy</th><th>Trades</th><th>Win Rate</th><th>Avg RR</th><th>Total Profit</th></tr></thead><tbody></tbody></table>
+        </div>
+
+        <div class="card">
+            <h2>Performance by Session</h2>
+            <table id="sessionTable"><thead><tr><th>Session</th><th>Trades</th><th>Win Rate</th><th>Avg RR</th><th>Total Profit</th></tr></thead><tbody></tbody></table>
+        </div>
+
+        <div class="card equity-curve">
+            <h2>Equity Curve</h2>
+            <canvas id="equityChart"></canvas>
+        </div>
+
+        <div class="card">
+            <h2>Trade Log</h2>
+            <select id="tradeSelect" class="trade-select" onchange="showTradeDetails(this.value)"><option value="">Select a trade to view details</option></select>
+            <div id="tradeDetails"><p style="text-align: center; color: #64748b;">Select a trade from the dropdown to view details</p></div>
+        </div>
+    </div>
+
+    <!-- Setup Modals -->
+    <div id="googleModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('googleModal')">&times;</span>
+            <h2>📁 Google Drive Setup</h2>
+            <ol>
+                <li>Go to <code>https://console.cloud.google.com/</code></li>
+                <li>Create a new project (e.g., "Trading Journal")</li>
+                <li>Enable <strong>Google Drive API</strong></li>
+                <li>Go to <strong>Credentials</strong> → <strong>Create Credentials</strong> → <strong>OAuth client ID</strong></li>
+                <li>Choose <strong>Web application</strong></li>
+                <li>Add Authorized redirect URI: <code id="googleRedirectUri"></code></li>
+                <li>Copy your <strong>Client ID</strong></li>
+            </ol>
+            <input type="text" id="googleClientIdInput" placeholder="Paste your Google Client ID here" style="width: 100%; margin: 16px 0;">
+            <button onclick="connectGoogleDrive()" class="btn-primary">Connect Google Drive</button>
+        </div>
+    </div>
+
+    <div id="dropboxModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('dropboxModal')">&times;</span>
+            <h2>📦 Dropbox Setup</h2>
+            <ol>
+                <li>Go to <code>https://www.dropbox.com/developers/apps</code></li>
+                <li>Click <strong>Create app</strong></li>
+                <li>Choose: <strong>Scoped access</strong> → <strong>Full Dropbox</strong></li>
+                <li>Name it "Trading Journal"</li>
+                <li>In <strong>Settings</strong>, add Redirect URI: <code id="dropboxRedirectUri"></code></li>
+                <li>Copy your <strong>App key</strong></li>
+            </ol>
+            <input type="text" id="dropboxClientIdInput" placeholder="Paste your Dropbox App Key here" style="width: 100%; margin: 16px 0;">
+            <button onclick="connectDropbox()" class="btn-primary">Connect Dropbox</button>
+        </div>
+    </div>
+
+    <div id="oneDriveModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('oneDriveModal')">&times;</span>
+            <h2>☁️ OneDrive Setup</h2>
+            <ol>
+                <li>Go to <code>https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps</code></li>
+                <li>Click <strong>New registration</strong></li>
+                <li>Name: "Trading Journal"</li>
+                <li>Add Redirect URI (Web): <code id="oneDriveRedirectUri"></code></li>
+                <li>Copy <strong>Application (client) ID</strong></li>
+            </ol>
+            <input type="text" id="oneDriveClientIdInput" placeholder="Paste your Application ID here" style="width: 100%; margin: 16px 0;">
+            <button onclick="connectOneDrive()" class="btn-primary">Connect OneDrive</button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let trades = JSON.parse(localStorage.getItem('trades')) || [];
+        let strategies = JSON.parse(localStorage.getItem('strategies')) || {};
+        let startingCapital = parseFloat(localStorage.getItem('startingCapital')) || 0;
+        let withdrawals = parseFloat(localStorage.getItem('withdrawals')) || 0;
+        let equityChart = null;
+        let editingIndex = null;
+        let cloudProvider = localStorage.getItem('cloudProvider') || null;
+        let autoSyncEnabled = localStorage.getItem('autoSyncEnabled') === 'true';
+
+        const pointValues = {"EURUSD": 10, "GBPUSD": 10, "USDJPY": 10, "XAUUSD": 1, "NAS100": 1, "BTCUSD": 1};
+
+        function getPointValue(pair) {
+            return pointValues[pair] || 1;
+        }
+
+        function loadStrategyDropdown() {
+            const select = document.getElementById('strategyName');
+            select.innerHTML = '<option value="">Select or Create New</option><option value="new">+ Create New Strategy</option>';
+            Object.keys(strategies).sort().forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+            });
+        }
+
+        function loadStrategyDetails(selectedName) {
+            const fields = document.getElementById('strategyFields');
+            if (selectedName === 'new') {
+                fields.style.display = 'block';
+                ['bias', 'confluence', 'model', 'entryCriteria', 'timeFrame', 'session'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+            } else if (selectedName && strategies[selectedName]) {
+                fields.style.display = 'block';
+                const strat = strategies[selectedName];
+                document.getElementById('bias').value = strat.bias || '';
+                document.getElementById('confluence').value = strat.confluence || '';
+                document.getElementById('model').value = strat.model || '';
+                document.getElementById('entryCriteria').value = strat.entryCriteria || '';
+                document.getElementById('timeFrame').value = strat.timeFrame || '';
+                document.getElementById('session').value = strat.session || '';
+            } else {
+                fields.style.display = 'none';
+            }
+        }
+
+        function handleAction() {
+            if (editingIndex !== null) {
+                updateTrade(editingIndex);
+            } else {
+                addTrade();
+            }
+        }
+
+        function addTrade() {
+            const tradeDate = document.getElementById('tradeDate').value;
+            const pair = document.getElementById('pair').value;
+            let strategyName = document.getElementById('strategyName').value;
+            const lotSize = parseFloat(document.getElementById('lotSize').value) || 1;
+            const entry = parseFloat(document.getElementById('entry').value);
+            const stop = parseFloat(document.getElementById('stop').value);
+            const tp = parseFloat(document.getElementById('tp').value);
+            const outcome = document.getElementById('outcome').value;
+            const notes = document.getElementById('notes').value;
+            const swap = parseFloat(document.getElementById('swap').value) || 0;
+            const screenshotFile = document.getElementById('screenshot').files[0];
+
+            if (!tradeDate || !pair || !strategyName || isNaN(entry) || isNaN(stop) || isNaN(tp)) {
+                alert("Please fill all required fields correctly.");
+                return;
+            }
+
+            if (strategyName === 'new') {
+                strategyName = prompt("Enter a name for this new strategy:");
+                if (!strategyName || strategyName.trim() === '') return;
+                strategyName = strategyName.trim();
+
+                if (strategies[strategyName]) {
+                    if (!confirm("Strategy already exists. Overwrite?")) return;
+                }
+
+                strategies[strategyName] = {
+                    bias: document.getElementById('bias').value,
+                    confluence: document.getElementById('confluence').value,
+                    model: document.getElementById('model').value,
+                    entryCriteria: document.getElementById('entryCriteria').value,
+                    timeFrame: document.getElementById('timeFrame').value,
+                    session: document.getElementById('session').value
+                };
+                localStorage.setItem('strategies', JSON.stringify(strategies));
+                loadStrategyDropdown();
+                document.getElementById('strategyName').value = strategyName;
+            }
+
+            const riskPoints = Math.abs(entry - stop);
+            const rewardPoints = Math.abs(tp - entry);
+            const rr = riskPoints > 0 ? (rewardPoints / riskPoints).toFixed(2) : 0.00;
+
+            const pointValue = getPointValue(pair);
+            let profit = 0;
+            if (outcome === 'win') profit = rewardPoints * lotSize * pointValue;
+            if (outcome === 'loss') profit = -riskPoints * lotSize * pointValue;
+            profit += swap;
+
+            const strategyInfo = strategies[strategyName] ? JSON.parse(JSON.stringify(strategies[strategyName])) : {};
+
+            if (screenshotFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const screenshotURL = e.target.result;
+                    saveTrade(screenshotURL);
+                };
+                reader.readAsDataURL(screenshotFile);
+            } else {
+                saveTrade('');
+            }
+
+            function saveTrade(screenshotURL) {
+                trades.push({
+                    tradeDate,
+                    pair,
+                    strategyName,
+                    strategyInfo,
+                    lotSize,
+                    entry,
+                    stop,
+                    tp,
+                    outcome,
+                    notes,
+                    rr,
+                    profit,
+                    swap,
+                    screenshotURL: screenshotURL
+                });
+                localStorage.setItem('trades', JSON.stringify(trades));
+                resetForm();
+                updateAll();
+                if (autoSyncEnabled) performAutoSync();
+                alert("Trade added successfully!");
+            }
+        }
+
+        function updateTrade(index) {
+            const tradeDate = document.getElementById('tradeDate').value;
+            const pair = document.getElementById('pair').value;
+            let strategyName = document.getElementById('strategyName').value;
+            const lotSize = parseFloat(document.getElementById('lotSize').value) || 1;
+            const entry = parseFloat(document.getElementById('entry').value);
+            const stop = parseFloat(document.getElementById('stop').value);
+            const tp = parseFloat(document.getElementById('tp').value);
+            const outcome = document.getElementById('outcome').value;
+            const notes = document.getElementById('notes').value;
+            const swap = parseFloat(document.getElementById('swap').value) || 0;
+            const screenshotFile = document.getElementById('screenshot').files[0];
+
+            if (!tradeDate || !pair || !strategyName || isNaN(entry) || isNaN(stop) || isNaN(tp)) {
+                alert("Please fill all required fields correctly.");
+                return;
+            }
+
+            if (strategyName === 'new') {
+                strategyName = prompt("Enter a name for this new strategy:");
+                if (!strategyName || strategyName.trim() === '') return;
+                strategyName = strategyName.trim();
+
+                if (strategies[strategyName]) {
+                    if (!confirm("Strategy already exists. Overwrite?")) return;
+                }
+
+                strategies[strategyName] = {
+                    bias: document.getElementById('bias').value,
+                    confluence: document.getElementById('confluence').value,
+                    model: document.getElementById('model').value,
+                    entryCriteria: document.getElementById('entryCriteria').value,
+                    timeFrame: document.getElementById('timeFrame').value,
+                    session: document.getElementById('session').value
+                };
+                localStorage.setItem('strategies', JSON.stringify(strategies));
+                loadStrategyDropdown();
+                document.getElementById('strategyName').value = strategyName;
+            }
+
+            const riskPoints = Math.abs(entry - stop);
+            const rewardPoints = Math.abs(tp - entry);
+            const rr = riskPoints > 0 ? (rewardPoints / riskPoints).toFixed(2) : 0.00;
+
+            const pointValue = getPointValue(pair);
+            let profit = 0;
+            if (outcome === 'win') profit = rewardPoints * lotSize * pointValue;
+            if (outcome === 'loss') profit = -riskPoints * lotSize * pointValue;
+            profit += swap;
+
+            const strategyInfo = strategies[strategyName] ? JSON.parse(JSON.stringify(strategies[strategyName])) : {};
